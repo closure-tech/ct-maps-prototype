@@ -1,0 +1,54 @@
+{
+    "family": "ct-openmaps-app",
+    "volumes": [
+        {
+            "name": "ct-vol",
+            "host": {}
+        }
+    ],
+    "containerDefinitions": [
+        {
+            "environment": [],
+            "name": "openmaps-app",
+            "image": "store/klokantech/openmaptiles-server-dev:1.4-free",
+            "memory": 1500,
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 80
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "ct-vol",
+                    "containerPath": "/var/www/ct-vol"
+                }
+            ],
+            "entryPoint": [
+                "/usr/sbin/apache2",
+                "-D",
+                "FOREGROUND"
+            ],
+            "essential": true
+        },
+        {
+            "name": "busybox",
+            "image": "busybox",
+            "cpu": 10,
+            "memory": 500,
+            "volumesFrom": [
+            {
+              "sourceContainer": "openmaps-app"
+            }
+            ],
+            "entryPoint": [
+                "sh",
+                "-c"
+            ],
+            "command": [
+                "/bin/sh -c \"while true; do /bin/date > /var/www/ct-vol/date; sleep 1; done\""
+            ],
+            "essential": false
+        }
+    ]
+}
